@@ -44,6 +44,19 @@ def add_test_particles(sim, m_tot, m_tp):
         sim.add(m=m_tp, a=a,f='uniform',e=0.0, inc=inc,Omega='uniform', primary=star, hash=f"tp_{added}")
         added += 1
 
+def assign_radii(sim,a1_in_AU = 0.1, rho_in_gm_cc = 1):
+        # set radii
+        rho_Earth_in_gm_cc = 5.5
+        REarth_in_AU = 0.0000425876
+        mEarth = 3e-6
+        
+        a1 = sim.particles[1].a
+        for p in sim.particles:
+            R_in_R_Earth = ((p.m / mEarth) * (rho_Earth_in_gm_cc / rho_in_gm_cc))**(1/3)
+            R_in_AU = R_in_R_Earth * REarth_in_AU
+            R_in_code_units = R_in_AU * a1  / a1_in_AU
+            p.r = R_in_code_units
+
 def add_test_particles_and_assign_radii(sim, m_tot, m_tp, a1_in_AU = 0.1, rho_in_gm_cc = 1):
         
         sim.N_active = sim.N
