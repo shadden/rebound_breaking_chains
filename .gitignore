@@ -1,0 +1,11 @@
+*.png
+*.ipynb
+*.pdf
+*.pyc
+*.sa
+*.bin
+*.npz
+hd110067_K_*
+.DS_Store
+*.gz
+*.csv
