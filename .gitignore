@@ -9,3 +9,5 @@ hd110067_K_*
 .DS_Store
 *.gz
 *.csv
+*.o*
+*.pbs
