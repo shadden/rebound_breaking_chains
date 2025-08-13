@@ -39,7 +39,7 @@ def process_sa(sa):
         time[i] = sim.t
         star = sim.particles[0]
         # number of surviving bound test particles
-        Ntp[i] = np.sum([p.a>0 for p in sim.particles[Npl+1:]])
+        Ntp[i] = np.sum([p.orbit(primary=sim.particles[0]).a>0 for p in sim.particles[Npl+1:]])
         if fixed_planet_number_Q:
             sim_c = rb.Simulation()
             sim_c.add(star.copy())
