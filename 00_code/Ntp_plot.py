@@ -27,7 +27,7 @@ for fi in glob.glob("/Users/hadden/Papers/11_breaking_chains/03_data/*plot_data*
 
     # store representative handles
     if mtp not in mtp_handles:
-        mtp_handles[mtp] = ax.plot([], [], color=color, ls='-', label="${}~M_\mathrm{{Pluto}}$".format(mtp))[0]
+        mtp_handles[mtp] = ax.plot([], [], color=color, ls='-', label=r"${}~M_\mathrm{{Pluto}}$".format(mtp))[0]
     if K not in K_handles:
         K_handles[K] = ax.plot([], [], color='k', ls=ls, label=f"{K}")[0]
 
