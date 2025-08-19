@@ -16,6 +16,7 @@ def scrub_simulation(sim):
     sim_new.t = sim.t
     sim_new.integrator = sim.integrator
     sim_new.dt = sim.dt
+    return sim_new
 
 def main():
     parser = argparse.ArgumentParser()
