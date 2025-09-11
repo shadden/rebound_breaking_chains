@@ -13,9 +13,11 @@ def scrub_simulation(sim):
             sim_new.add(p.copy())
     sim_new.move_to_com()
     
+    sim_new.N_active = sim.N_active
     sim_new.t = sim.t
     sim_new.integrator = sim.integrator
     sim_new.dt = sim.dt
+    
     return sim_new
 
 def main():

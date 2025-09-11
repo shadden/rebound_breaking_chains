@@ -66,7 +66,7 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
         res_kvecs[n, n+1] = j
         res_kvecs[n, n] = 1 - j
     axes[2].set_ylabel(r"$\Delta$", fontsize=15)
-    axes[2].set_ylim(-0.005,0.025)
+    axes[2].set_ylim(-0.005,0.05)
 
     # ---- Panels 4..: each 3-body angle in its own small panel ----
     if n3 > 0:
@@ -83,7 +83,7 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
     axes[-1].set_xlabel('Time [Myr]', fontsize=15)
     for ax in axes:
         ax.set_xscale('log')
-        ax.set_xlim(2.9e-3,30)
+        ax.set_xlim(2.9e-3,3*30)
      # hide x tick labels for all but the bottom axis
     for ax in axes[:-1]:
         ax.tick_params(labelbottom=False)

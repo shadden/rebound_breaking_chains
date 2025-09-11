@@ -54,7 +54,7 @@ def process_sa(sa):
             Omega[i,j] = orbit.Omega
             if fixed_planet_number_Q:
                 sim_c.add(p.copy())
-        if fixed_planet_number_Q:
+        if False and fixed_planet_number_Q:
             sim_c.move_to_com()
             pvars = cm.Poincare.from_Simulation(sim_c)
             x[i] = [p.x for p in pvars.particles[1:]]
@@ -70,7 +70,7 @@ def process_sa(sa):
         "time":time
     }
     # if the number of planets is preserved, compute secular info
-    if fixed_planet_number_Q:
+    if False and fixed_planet_number_Q:
         llsys = LaplaceLagrangeSystem.from_Poincare(pvars)
         auto_add_resonances_to_LaplaceLagrangeSystem(llsys)
         Te, De = llsys.diagonalize_eccentricity()
