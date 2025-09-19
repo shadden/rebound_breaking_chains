@@ -9,12 +9,21 @@ from matplotlib.gridspec import GridSpec
 
 def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=100$"):
     # assumes: get_fg_coefficients is available in scope
+    mass_mEarth = data['m'] / 3e-6 
     a = data['a'] * 0.1
     e = data['e']
     q = a * (1 - e)
     Q = a * (1 + e)
-
+    masks = (np.logical_and(a > 0,mass_mEarth>1)).T
     physical_time = 0.1**1.5 * data['time'] / (2*np.pi) / 1e6  # Myr
+
+    i_unstables = np.argmin(masks,axis=1)
+    t_unstable = np.inf
+    if np.any(i_unstables>0):
+        i_unstable = np.min(i_unstables[i_unstables>0])
+        t_unstable = physical_time[i_unstable]
+        print("Instability at t={:.1f} Myr".format(t_unstable))
+    stable_mask = physical_time < t_unstable
 
     pomega = data['omega'] + data['Omega']
     z = e * np.exp(1j * pomega)
@@ -35,8 +44,7 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
         ax.tick_params(direction='in', which='minor', size=6)
 
     # ---- Panel 1: a, q, Q (log y) ----
-    for y, y1, y2 in zip(a.T, q.T, Q.T):
-        msk = y > 0
+    for y, y1, y2, msk in zip(a.T, q.T, Q.T,masks):
         ln, = axes[0].plot(physical_time[msk], y[msk], lw=2)
         axes[0].fill_between(physical_time[msk], y1[msk], y2[msk],
                              color=ln.get_color(), alpha=0.4)
@@ -46,7 +54,8 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
     axes[0].set_title(title,fontsize=15)
 
     # ---- Panel 2: eccentricities ----
-    for msk, ecc in zip((a > 0).T, e.T):
+    
+    for msk, ecc in zip(masks, e.T):
         axes[1].plot(physical_time[msk], ecc[msk])
     axes[1].set_ylabel(r"$e$", fontsize=15)
     axes[1].set_ylim(1e-3,0.35)
@@ -54,20 +63,23 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
 
     # ---- Panel 3: Δ for consecutive pairs ----
     res_kvecs = np.zeros((Npl - 1, Npl))
-    for n, Pin, Pout, zin, zout, lin, lout in zip(
-            range(Npl - 1), P.T, P.T[1:], z.T, z.T[1:], l.T, l.T[1:]):
-        msk = ~np.logical_or(np.isnan(Pin), np.isnan(Pout))
+    for n, Pin, Pout, zin, zout, lin, lout,mask_in, mask_out in zip(
+            range(Npl - 1), P.T, P.T[1:], z.T, z.T[1:], l.T, l.T[1:],masks,masks[1:]
+            ):
+        #msk = ~np.logical_or(np.isnan(Pin), np.isnan(Pout))
+        msk = np.logical_or(mask_in,mask_out)
         # estimate j for near-(j:j-1)
         j = int(np.round(1 + 1/(Pout[0]/Pin[0] - 1)))
         Delta = ((j - 1) * Pout / (j * Pin) - 1)
-        axes[2].plot(physical_time[msk], Delta[msk])
+        i_in,i_out = 'bcdefg'[n],'bcdefg'[n+1]
+        axes[2].plot(physical_time[msk], Delta[msk],label=f"{i_in},{i_out}  ({j}:{j-1})")
 
         # store coefficients for 3-body construction; no 2-body angle plotted
         res_kvecs[n, n+1] = j
         res_kvecs[n, n] = 1 - j
     axes[2].set_ylabel(r"$\Delta$", fontsize=15)
     axes[2].set_ylim(-0.005,0.05)
-
+    axes[2].legend(loc='upper left')
     # ---- Panels 4..: each 3-body angle in its own small panel ----
     if n3 > 0:
         k_3br = res_kvecs[1:] - res_kvecs[:-1]          # shape: (Npl-2, Npl)
@@ -75,7 +87,7 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
 
         for i, phi_3br in enumerate(phi_3brs):
             ax = axes[3 + i]
-            ax.plot(physical_time, (phi_3br / np.pi), 'k.', ms=1)
+            ax.plot(physical_time[stable_mask], (phi_3br[stable_mask] / np.pi), 'k.', ms=1)
             ax.set_ylim(-1, 1)
             ax.set_ylabel(rf"$\phi_{{{i+1}}}/\pi$", fontsize=12)
 
@@ -83,7 +95,8 @@ def plot_resonances(data,title = r"$m_{{s}}=3M_\mathrm{{Pluto}}~;~f=10\%~;~ K=10
     axes[-1].set_xlabel('Time [Myr]', fontsize=15)
     for ax in axes:
         ax.set_xscale('log')
-        ax.set_xlim(2.9e-3,3*30)
+        ax.set_xlim(2.9e-3,0.1**(1.5) * 1e10 / 1e6)
+        # 0.1**
      # hide x tick labels for all but the bottom axis
     for ax in axes[:-1]:
         ax.tick_params(labelbottom=False)
